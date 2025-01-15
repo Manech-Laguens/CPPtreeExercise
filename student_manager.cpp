@@ -90,3 +90,117 @@ public:
         }
         displayInOrder(root);
     }
+
+private:
+    // Insert a new student in the BST
+    TreeNode* insert(TreeNode* node, const Student& student) {
+        if (!node) return new TreeNode(student);
+        if (student.student_id < node->student.student_id) {
+            node->left = insert(node->left, student);
+        } else if (student.student_id > node->student.student_id) {
+            node->right = insert(node->right, student);
+        } else {
+            std::cout << "Student ID already exists.\n";
+        }
+        return node;
+    }
+
+    // Search for a student by ID in the BST
+    TreeNode* search(TreeNode* node, int id) {
+        if (!node || node->student.student_id == id) return node;
+        if (id < node->student.student_id) {
+            return search(node->left, id);
+        } else {
+            return search(node->right, id);
+        }
+    }
+
+    // Remove a student by ID in the BST
+    TreeNode* remove(TreeNode* node, int id) {
+        if (!node) {
+            std::cout << "Student not found.\n";
+            return nullptr;
+        }
+
+        if (id < node->student.student_id) {
+            node->left = remove(node->left, id);
+        } else if (id > node->student.student_id) {
+            node->right = remove(node->right, id);
+        } else {
+            // Node to be deleted
+            if (!node->left) {
+                TreeNode* temp = node->right;
+                delete node;
+                std::cout << "Student removed successfully.\n";
+                return temp;
+            } else if (!node->right) {
+                TreeNode* temp = node->left;
+                delete node;
+                std::cout << "Student removed successfully.\n";
+                return temp;
+            }
+
+            // Node with two children
+            TreeNode* temp = findMin(node->right);
+            node->student = temp->student;
+            node->right = remove(node->right, temp->student.student_id);
+        }
+        return node;
+    }
+
+    // Find the node with the minimum value in a subtree
+    TreeNode* findMin(TreeNode* node) {
+        while (node && node->left) {
+            node = node->left;
+        }
+        return node;
+    }
+
+    // In-order traversal to display students
+    void displayInOrder(TreeNode* node) {
+        if (!node) return;
+        displayInOrder(node->left);
+        displayStudent(node->student);
+        displayInOrder(node->right);
+    }
+
+    // Display a single student
+    void displayStudent(const Student& student) {
+        std::cout << "ID: " << student.student_id
+                  << ", Name: " << student.name
+                  << ", Generation: " << student.generation << std::endl;
+    }
+};
+
+// Console Menu
+void menu() {
+    StudentManager manager;
+    int choice;
+    do {
+        std::cout << "\nMenu:\n"
+                  << "1. Add Student\n"
+                  << "2. Retrieve Student\n"
+                  << "3. Update Student\n"
+                  << "4. Remove Student\n"
+                  << "5. Display All Students\n"
+                  << "6. Exit\n"
+                  << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1: manager.addStudent(); break;
+            case 2: manager.retrieveStudent(); break;
+            case 3: manager.updateStudent(); break;
+            case 4: manager.removeStudent(); break;
+            case 5: manager.displayAll(); break;
+            case 6: std::cout << "Exiting...\n"; break;
+            default: std::cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 6);
+}
+
+int main() {
+    menu();
+    return 0;
+}
+
